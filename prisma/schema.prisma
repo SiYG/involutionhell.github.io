@@ -1,12 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -14,48 +7,82 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
+model users {
+  id            Int       @id @default(autoincrement())
+  name          String?   @db.VarChar(255)
+  email         String?   @db.VarChar(255)
+  emailVerified DateTime? @db.Timestamptz(6)
   image         String?
-  accounts      Account[]
-  sessions      Session[]
+
+  @@map("users")
+  @@ignore
 }
 
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
+model accounts {
+  id                Int     @id @default(autoincrement())
+  userId            Int
+  type              String  @db.VarChar(255)
+  provider          String  @db.VarChar(255)
+  providerAccountId String  @db.VarChar(255)
   refresh_token     String?
   access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
+  expires_at        BigInt?
   id_token          String?
+  scope             String?
   session_state     String?
+  token_type        String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
+  @@map("accounts")
+  @@ignore
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
+model sessions {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  expires      DateTime @db.Timestamptz(6)
+  sessionToken String   @db.VarChar(255)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("sessions")
+  @@ignore
 }
 
-model VerificationToken {
+model verification_token {
   identifier String
-  token      String   @unique
-  expires    DateTime
+  expires    DateTime @db.Timestamptz(6)
+  token      String
 
-  @@unique([identifier, token])
+  @@id([identifier, token])
+  @@map("verification_token")
+  @@ignore
+}
+
+model docs {
+  id          String   @id
+  pathCurrent String?  @map("path_current")
+  title       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  contributors doc_contributors[]
+}
+
+model doc_contributors {
+  docId    String @map("doc_id")
+  githubId BigInt @map("github_id") @db.BigInt
+
+  login       String
+  displayName String? @map("display_name")
+  avatarUrl   String  @map("avatar_url")
+  htmlUrl     String  @map("html_url")
+
+  contributions     Int      @default(1)
+  lastContributedAt DateTime @default(now()) @map("last_contributed_at")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  Doc docs @relation(fields: [docId], references: [id])
+
+  @@id([docId, githubId])
+  @@index([docId])
+  @@index([githubId])
 }
