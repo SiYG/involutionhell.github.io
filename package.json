@@ -61,6 +61,7 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@paralleldrive/cuid2": "^2.2.2",
     "@tailwindcss/postcss": "^4.1.13",
     "@types/node": "latest",
     "@types/react": "^19.1.13",
@@ -76,6 +77,8 @@
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
     "tailwindcss": "^4.1.13",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.6",
     "tw-animate-css": "^1.3.8",
     "typescript": "^5.9.2",
     "vercel": "^48.1.0"
